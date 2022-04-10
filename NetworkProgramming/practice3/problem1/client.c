@@ -14,6 +14,8 @@ int main(int argc, char* argv[]){
     struct sockaddr_in serv_addr;
 
     char message[BUF_SIZE];
+    char* hostadr;
+
     int str_len;
     if(argc!= 3){
         printf("Usage: %s <IP> <port> \n", argv[0]);
@@ -41,7 +43,7 @@ int main(int argc, char* argv[]){
         if(!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
             break;
         write(sock, message, strlen(message));
-        str_len = read(sock, message, BUF_SIZE -1);
+        str_len = read(sock, hostadr, BUF_SIZE -1);
         message[str_len] =0;
 
         printf("Message from server : %s \n", message);

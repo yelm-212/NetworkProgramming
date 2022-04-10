@@ -6,33 +6,20 @@
 #include <sys/socket.h>
 #include <netdb.h> // need to get host addr
 
-#define TRUE 1
-#define FALSE 0
+#define BUF_SIZE 1024
 
 void error_handling(char* message);
 
-char* gethostadr(char* msg){
-    // new function to get host addr infomation
-    // from input message(hostname - msg) 
-
-    struct sockaddr_in addr;
-    struct hostent *host;
-
-    host = gethostbyname(msg);
-
-    if(!host)
-        error_handling("gethost...error");
-
-    return inet_ntoa(*(struct in_addr*)host->h_addr_list[0]);
-}
 
 int main(int argc, char* argv[]){
     int serv_sock, clnt_sock;
-    char message[30];
-    int option, str_len;
+    char message[BUF_SIZE];
+    int str_len;
     socklen_t optlen, clnt_adr_sz;
     struct sockaddr_in serv_adr, clnt_adr;
 
+    int i;
+    struct hostent *host;
     char* hostadr; // needed to get host adr
 
     if( argc != 2 ){
@@ -43,11 +30,6 @@ int main(int argc, char* argv[]){
     serv_sock = socket(PF_INET, SOCK_STREAM, 0);
     if( serv_sock == -1 )
         error_handling("socket() error");
-
-
-    /*optlen = sizeof(option);
-    option = TRUE;
-    setsockopt(serv_sock, SOL_SOCKET, SO_REUSEADDR, (void*)&option, optlen);*/
 
     
     memset(&serv_adr, 0, sizeof(serv_adr));
@@ -63,9 +45,17 @@ int main(int argc, char* argv[]){
     clnt_adr_sz = sizeof(clnt_adr);
     clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
 
-
     while( (str_len = read(clnt_sock, message, sizeof(message))) != 0 ){
-        hostadr = gethostadr(message);
+        host = gethostbyname(message);
+
+        if (!host){
+            hostadr = "gethosterror()";
+        }
+        while(*host->h_addr_list[i] != NULL){
+            hostadr = inet_ntoa(*(struct in_addr*)host->h_addr_list[i]);
+            i++;
+        }
+
         write(clnt_sock, hostadr, sizeof(hostadr));
         write(1, hostadr, sizeof(hostadr));
     }
