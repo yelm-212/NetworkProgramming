@@ -11,19 +11,19 @@
 
 void error_handling(char* message);
 
-char* gethostadr(char* msg, struct hostent* host){
-    int i=0;
-    char* hostadr;
+char* gethostadr(char* msg){
+    // new function to get host addr infomation
+    // from input message(hostname - msg) 
+
     struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_addr.s_addr = inet_addr(msg);
-    host = gethostbyaddr((char*)&addr.sin_addr, 4, AF_INET);
+    struct hostent *host;
+
+    host = gethostbyname(msg);
+
     if(!host)
         error_handling("gethost...error");
-    
-    hostadr = inet_ntoa(*(struct in_addr*)host->h_addr_list[i]);
 
-    return hostadr;
+    return inet_ntoa(*(struct in_addr*)host->h_addr_list[0]);
 }
 
 int main(int argc, char* argv[]){
@@ -32,9 +32,8 @@ int main(int argc, char* argv[]){
     int option, str_len;
     socklen_t optlen, clnt_adr_sz;
     struct sockaddr_in serv_adr, clnt_adr;
-    
-    struct hostent *host;
-    char* hostadr;
+
+    char* hostadr; // needed to get host adr
 
     if( argc != 2 ){
     printf("Usage : %s <port>\n", argv[0]);
@@ -66,7 +65,7 @@ int main(int argc, char* argv[]){
 
 
     while( (str_len = read(clnt_sock, message, sizeof(message))) != 0 ){
-        hostadr = gethostadr(message,host);
+        hostadr = gethostadr(message);
         write(clnt_sock, hostadr, sizeof(hostadr));
         write(1, hostadr, sizeof(hostadr));
     }
