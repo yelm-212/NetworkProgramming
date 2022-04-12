@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
     while( (str_len = read(clnt_sock, message, BUF_SIZE)) != 0 ){
         strcpy(msgptr, message);
         host = gethostbyname(msgptr);
-        hostadr = malloc(sizeof(char) * 40);
+        hostadr = malloc(sizeof(char) * BUF_SIZE);
 
         if (!host){
             hostadr = "gethosterror()";
@@ -64,6 +64,9 @@ int main(int argc, char* argv[]){
         write(clnt_sock, message, BUF_SIZE);
         write(1, message, strlen(message));
     }
+
+    free(msgptr);
+    free(hostadr);
 
     close(clnt_sock);
     close(serv_sock);
