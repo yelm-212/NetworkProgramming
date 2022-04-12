@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 50
 
 void error_handling(char *message);
 
@@ -13,10 +13,12 @@ int main(int argc, char* argv[]){
     int sock;
     struct sockaddr_in serv_addr;
 
+    int str_len, recv_len, recv_cnt;
     char message[BUF_SIZE];
-    char* hostadr;
+    char msg[BUF_SIZE];
+    // char hostadr[BUF_SIZE];
+    // char * hostadr;
 
-    int str_len;
     if(argc!= 3){
         printf("Usage: %s <IP> <port> \n", argv[0]);
         exit(1);
@@ -37,17 +39,27 @@ int main(int argc, char* argv[]){
         puts("Connected.......");
     
     while(1){
+        // message = malloc(sizeof(char) * BUF_SIZE);
         fputs("Enter a host name (Q to quit): ", stdout);
+        // scanf("%s", message);
         fgets(message, BUF_SIZE, stdin);
+        // 개행 문자열 처리
 
         if(!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
             break;
-        write(sock, message, strlen(message));
-        str_len = read(sock, hostadr, BUF_SIZE -1);
-        message[str_len] =0;
-
-        printf("Message from server : %s \n", message);
+        str_len = write(sock, message, strlen(message)-1);
+        recv_len = 0; 
+        while (recv_len < str_len){
+            recv_cnt = read(sock, &message[recv_len], BUF_SIZE -1);
+            if(recv_cnt == -1)
+                error_handling("read() error!");
+            recv_len += recv_cnt;
+        }
+        // message[str_len] =0;
+        printf("From server: %s \n", message);
     }
+        // free(message);
+        // free(hostadr);
     close(sock);
     
     return 0; 
