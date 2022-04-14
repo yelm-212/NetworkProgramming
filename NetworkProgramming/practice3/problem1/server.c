@@ -44,10 +44,14 @@ int main(int argc, char* argv[]){
 
     clnt_adr_sz = sizeof(clnt_adr);
     clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
+    puts("new client connected...");
 
-    char* msgptr = malloc(sizeof(char) * BUF_SIZE);
-    while( (str_len = read(clnt_sock, message, BUF_SIZE)) != 0 ){
+    while( 1 ){
+        str_len = read(clnt_sock, message, BUF_SIZE);
+
+        char* msgptr = malloc(sizeof(char) * BUF_SIZE);
         strcpy(msgptr, message);
+        free(msgptr);
         host = gethostbyname(msgptr);
         hostadr = malloc(sizeof(char) * BUF_SIZE);
 
@@ -59,16 +63,20 @@ int main(int argc, char* argv[]){
         }else
             hostadr = "gethosterror()";
 
+        if (str_len <= 0)
+            break;
+
+
         strcpy(message, hostadr);
 
-        write(clnt_sock, message, BUF_SIZE);
-        write(1, message, strlen(message));
+        write(clnt_sock, message, strlen(message));
+        // write(1, message, strlen(message));
     }
 
-    free(msgptr);
-    free(hostadr);
 
+    free(hostadr);
     close(clnt_sock);
+    puts("client disconnected...");
     close(serv_sock);
     return 0;
 }

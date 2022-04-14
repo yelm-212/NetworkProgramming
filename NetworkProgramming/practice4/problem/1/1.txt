@@ -1,0 +1,13 @@
+# 1.1
+
+1 1 1 1
+
+# 1.2
+
+fork returns the process-ID of the child if it is parent
+and returns 0 if it is child.
+return value of two forks inside if-condition is p-id 
+and two forks have different values,
+condition will be false and if statement will not executed.
+Total execution of fork() will be 2 times
+and have 4 process

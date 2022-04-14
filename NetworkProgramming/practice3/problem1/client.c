@@ -43,14 +43,14 @@ int main(int argc, char* argv[]){
         fputs("Enter a host name (Q to quit): ", stdout);
         // scanf("%s", message);
         fgets(message, BUF_SIZE, stdin);
-        // 개행 문자열 처리
 
         if(!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
             break;
+        // 개행 문자열 처리
         str_len = write(sock, message, strlen(message)-1);
         recv_len = 0; 
         while (recv_len < str_len){
-            recv_cnt = read(sock, &message[recv_len], BUF_SIZE -1);
+            recv_cnt = read(sock, &message[recv_len], BUF_SIZE-1);
             if(recv_cnt == -1)
                 error_handling("read() error!");
             recv_len += recv_cnt;
