@@ -31,10 +31,13 @@ int main(int argc, char *argv[])
 		error_handling("connect() error!");
 
 	pid=fork();
-	if(pid==0) 
+
+	while(read(sock, buf, BUF_SIZE) <= 0){
+	if(pid==0) //child writes
 		write_routine(sock, buf);
-	else 
+	else // and parent keep listening
 		read_routine(sock, buf);
+	}
 
 	close(sock);
 	return 0;
@@ -42,29 +45,24 @@ int main(int argc, char *argv[])
 
 void read_routine(int sock, char *buf)
 {
-	while(1) 
-	{
-		int str_len=read(sock, buf, BUF_SIZE);
-		if(str_len==0)
-			return;
-
-		buf[str_len]=0;
-		printf("Message from server: %s", buf);
-	}
+	int str_len=read(sock, buf, BUF_SIZE);
+	if(str_len==0)
+		return;
+	
+	buf[str_len]=0;
+	printf("Message from server: %s", buf);
 }
 void write_routine(int sock, char *buf)
 {
-	while(1)
-	{
-		fgets(buf, BUF_SIZE, stdin); 
-		if(!strcmp(buf,"q\n") || !strcmp(buf,"Q\n"))
-		{	
-			shutdown(sock, SHUT_WR); 
-			return;
-		}
-		write(sock, buf, strlen(buf)-1); 
-		// -1 한 이유 : 개행 문자열 처리
+		// 개행 문자열 안나오게 처리
+	scanf("%s", buf); 
+	if(!strcmp(buf,"q") || !strcmp(buf,"Q"))
+	{	
+		shutdown(sock, SHUT_WR); 
+		return;
 	}
+
+	write(sock, buf, strlen(buf)); 
 }
 void error_handling(char *message)
 {

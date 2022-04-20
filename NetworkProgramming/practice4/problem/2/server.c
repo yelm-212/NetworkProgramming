@@ -13,6 +13,8 @@ void error_handling(char *message);
 void read_childproc(int sig);
 char* gethostadr_serv(char* message, int str_len);
 
+#define GETHOST_ERR "gethost...error"
+
 int main(int argc, char *argv[])
 {
 	int serv_sock, clnt_sock;
@@ -59,14 +61,11 @@ int main(int argc, char *argv[])
 		}
 		if(pid==0) 
 		{
-			close(serv_sock); 
+			// close(serv_sock); 
+			// keep listnening
 			while((str_len=read(clnt_sock, buf, BUF_SIZE))!=0){
-				char* temp = malloc(sizeof(char) * BUF_SIZE);
-				strcpy(temp, buf);
-				temp = gethostadr_serv(temp, str_len);
-				strcpy(buf, temp);
-				write(clnt_sock, buf, str_len);
-				free(temp);
+				strcpy(buf, gethostadr_serv(buf, str_len));
+				write(clnt_sock, buf, strlen(buf));
 			}
 			
 			close(clnt_sock); 
@@ -91,14 +90,14 @@ char* gethostadr_serv(char* message, int str_len){
 	host = gethostbyname(msgptr);
     hostadr = malloc(sizeof(char) * BUF_SIZE);
 
-    if (!host){
-        hostadr = "gethosterror()";
+    if (host == NULL){
+        strcpy(hostadr, GETHOST_ERR);
     }
     else if(*host->h_addr_list != NULL){
         strcpy(hostadr, inet_ntoa(*(struct in_addr*)host->h_addr_list[0]));
     }else
-        hostadr = "gethosterror()";
-	
+        strcpy(hostadr, GETHOST_ERR);
+
 	return hostadr;
 }
 
