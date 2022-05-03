@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 	int sock;
 	pid_t pid;
 	char buf[BUF_SIZE];
+	char svmsg[BUF_SIZE] = { 0x00 ,};
 	struct sockaddr_in serv_adr;
 	if(argc!=3) {
 		printf("Usage : %s <IP> <port>\n", argv[0]);
@@ -33,11 +34,14 @@ int main(int argc, char *argv[])
 	if(connect(sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr))==-1)
 		error_handling("connect() error!");
 
+	// read_routine(sock, buf);
+
+	// 서버 문제인줄 알았는데 클라 건들면서 fork 모르고 지움 ㅠㅠ 왜 눈치못챘지
 	pid=fork();
 	if(pid==0) 
 		write_routine(sock, buf);
 	else 
-		read_routine(sock, buf);
+		read_routine(sock, svmsg);
 
 	close(sock);
 	return 0;
@@ -52,7 +56,7 @@ void read_routine(int sock, char *buf)
 			return;
 
 		buf[str_len]=0;
-		printf("Message from server: %s", buf);
+		printf("%s", buf);
 	}
 }
 void write_routine(int sock, char *buf)
@@ -64,8 +68,10 @@ void write_routine(int sock, char *buf)
 		{	
 			shutdown(sock, SHUT_WR); 
 			return;
+			exit(0);
 		}
 		write(sock, buf, strlen(buf)); 
+		fflush(stdin); // erase stdin buf after writing socket
 	}
 }
 void error_handling(char *message)
