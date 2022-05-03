@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	pid=fork();
 	if(pid==0) 
 		write_routine(sock, buf);
-	else 
+	else // server에서 읽어온 메시지는 svmsg로 바뀜
 		read_routine(sock, svmsg);
 
 	close(sock);
