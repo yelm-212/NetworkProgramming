@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 		if(fd_num==0)
 			continue;
 
-		for(i=0; i<fd_max+1; i++) //find if there is edited fd.
+		for(i=0; i<fd_max+1; i++) // find if there is edited fd.
 		{
 			if(FD_ISSET(i, &cpy_reads))
 			{
@@ -62,12 +62,13 @@ int main(int argc, char *argv[])
 					adr_sz=sizeof(clnt_adr);
 					clnt_sock=
 						accept(serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
-					FD_SET(clnt_sock, &reads); // reads client socket fd
+					FD_SET(clnt_sock, &reads); 
+					// reads client socket fd update check
 					if(fd_max<clnt_sock)
 						fd_max=clnt_sock;
 					printf("connected client: %d \n", clnt_sock);
 				}
-				else    // reads message
+				else    // reads message from clt
 				{
 					str_len=read(i, buf, BUF_SIZE);
 					if(str_len==0)    // close request

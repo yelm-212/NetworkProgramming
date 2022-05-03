@@ -11,7 +11,7 @@
 #define BUF_SIZE 30
 void error_handling(char *message);
 void read_childproc(int sig);
-char* gethostadr_serv(char* message, int str_len);
+char* gethostadr_serv(char* message, int str_len, int i);
 
 #define GETHOST_ERR "gethost...error"
 
@@ -19,12 +19,18 @@ int main(int argc, char *argv[])
 {
 	int serv_sock, clnt_sock;
 	struct sockaddr_in serv_adr, clnt_adr;
+
+	struct hostent *host;
+    char* hostadr; // needed to get host adr
+
+	int i = 0;
 	
 	pid_t pid;
 	struct sigaction act; 
 	socklen_t adr_sz;
 	int str_len, state;
 	char buf[BUF_SIZE];
+	char newbuf[BUF_SIZE];
 	if(argc!=2) {
 		printf("Usage : %s <port>\n", argv[0]);
 		exit(1);
@@ -64,8 +70,13 @@ int main(int argc, char *argv[])
 			// close(serv_sock); 
 			// keep listnening
 			while((str_len=read(clnt_sock, buf, BUF_SIZE))!=0){
-				strcpy(buf, gethostadr_serv(buf, str_len));
-				write(clnt_sock, buf, strlen(buf));
+				strcpy(newbuf, gethostadr_serv(buf, str_len));
+
+				int i = 0 ;
+				while(*host->h_addr_list[i] != NULL){
+					write(clnt_sock, newbuf, strlen(newbuf));
+
+				}
 			}
 			
 			close(clnt_sock); 
@@ -80,25 +91,41 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-char* gethostadr_serv(char* message, int str_len){
+// struct hostent* hosttomsg(struct hostent *host){
+
+// 	if (host == NULL){
+//         strcpy(hostadr, GETHOST_ERR);
+//     }
+//     else if(*host->h_addr_list != NULL){
+//         strcpy(hostadr, inet_ntoa(*(struct in_addr*)host->h_addr_list[i]));
+// 		i++;
+//     }else
+//         strcpy(hostadr, GETHOST_ERR);
+
+// 	return 
+// }
+
+char* gethostadr_serv(char* message, int str_len, int i){
 	char* msgptr = malloc(sizeof(char) * BUF_SIZE);
 	struct hostent *host;
-    char* hostadr; // needed to get host adr
+
 
     strcpy(msgptr, message);
-    free(msgptr);
 	host = gethostbyname(msgptr);
-    hostadr = malloc(sizeof(char) * BUF_SIZE);
+    free(msgptr);
+	// set free after this
+
+    // hostadr = malloc(sizeof(char) * BUF_SIZE);
 
     if (host == NULL){
-        strcpy(hostadr, GETHOST_ERR);
+        return GETHOST_ERR;
     }
     else if(*host->h_addr_list != NULL){
-        strcpy(hostadr, inet_ntoa(*(struct in_addr*)host->h_addr_list[0]));
+        return inet_ntoa(*(struct in_addr*)host->h_addr_list[i++]);
     }else
-        strcpy(hostadr, GETHOST_ERR);
+        return GETHOST_ERR;
 
-	return hostadr;
+	return GETHOST_ERR;
 }
 
 void read_childproc(int sig)

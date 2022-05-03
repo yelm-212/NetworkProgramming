@@ -11,7 +11,8 @@
 
 int main(){
     struct sockaddr_in addr;
-    char* hostadr[] = {};
+    char* hostadr;
+    char** hostadrs;
     struct hostent *host;
 
     while(1){
@@ -23,21 +24,22 @@ int main(){
         
         host = gethostbyname(message);
         free(message);
-        // hostadr = (char*)malloc(sizeof(char) * 40);
+        hostadr = malloc(sizeof(char) * 40);
 
         if (host == NULL){
-            strcpy(hostadr[0], GETHOST_ERR);
+            strcpy(hostadr, GETHOST_ERR);
         }
         else if(*host->h_addr_list != NULL){
             for (int i=0; host->h_aliases[i];i++){
-                strcpy(hostadr[i], inet_ntoa(*(struct in_addr*)host->h_addr_list[i]));
+                strcpy(hostadr, inet_ntoa(*(struct in_addr*)host->h_addr_list[i]));
+                
             }
         }else
-            strcpy(hostadr[0], GETHOST_ERR);
+            strcpy(hostadr, GETHOST_ERR);
         
         int i=0;
         while (host->h_aliases[i] != NULL){
-            printf("IP addr: %s\n", hostadr[i]);
+            printf("%s\n", hostadrs[i]);
             i++;
         }
         

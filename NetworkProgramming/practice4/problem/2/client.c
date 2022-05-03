@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	while(read(sock, buf, BUF_SIZE) <= 0){
 	if(pid==0) //child writes
 		write_routine(sock, buf);
-	else // and parent keep listening
+	else // and parent keep reading from sock
 		read_routine(sock, buf);
 	}
 
