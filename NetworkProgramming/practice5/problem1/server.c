@@ -74,7 +74,9 @@ int main(int argc, char *argv[])
 						// 뭘 새로 넣어서 각 클라이언트 메시지 처리해줘야할듯? 
 						// select있으니까 pipe쓰는건 좀 아닌거같음 
 					printf("connected client: %d \n", clnt_sock);
-					sprintf(svmsg , "Server: the number of clients is %d, and client %d has joined the server now. \n", clnt_sock-3, clnt_sock);
+					sprintf(svmsg , "Server: the number of clients is %d now.", clnt_sock-3);
+					write(clnt_sock, svmsg, strlen(svmsg)); 
+					sprintf(svmsg , "\nServer: client %d has joined the server now. \n", clnt_sock);
 					write(clnt_sock, svmsg, strlen(svmsg)); 
 				}
 				else    // reads message
